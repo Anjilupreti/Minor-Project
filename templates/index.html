@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fashion Recommendation System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+    
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+        }
+    
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 30px;
+        }
+    
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+    
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    
+        input[type="submit"]:hover {
+            background-color: #3e8e41;
+        }
+    
+        h2 {
+            text-align: center;
+            margin-top: 50px;
+        }
+    
+        #recommended-items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+    
+        #recommended-items img {
+            width: 200px;
+            height: 200px;
+            margin: 10px;
+            object-fit: cover;
+        }
+        
+        #uploaded-image {
+            width: 200px;
+            height: 200px;
+            margin-top: 30px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fashion Recommendation System</h1>
+    
+    <form action = "{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="image">
+        <input type="submit" value="Recommend">
+    </form>
+    
+    {% if image_filename %}
+        <img id="uploaded-image" src="{{ url_for('serve_image', filename=image_filename) }}" alt="Uploaded Image">
+    {% endif %}
+    
+    <h2>Recommended Items</h2>
+    <div id="recommended-items"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('form').submit(function(event) {
+            event.preventDefault();
+            var formData = new FormData($(this)[0]);
+            $.ajax({
+                url: '/recommend',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#recommended-items').empty();
+                    $.each(response, function(index, item) {
+                        $('#recommended-items').append('<img src="data:image/jpeg;base64,' + item.image + '" alt="' + item.filename + '">');
+
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
